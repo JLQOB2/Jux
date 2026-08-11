@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# macOS
+.DS_Store
+
+# Editor state
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Local env files (secrets never go in git)
+*.local
+.env*
