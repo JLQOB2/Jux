@@ -41,5 +41,6 @@ pnpm dev          # start the dev server (http://localhost:5173)
 
 ## Status
 
-Early scaffolding. Game rules and mechanics are being designed; boards will come
-in 4×4, 6×6, and 8×8.
+Engine in progress. Rules are settled: even n×n boards (6×6 easy, 8×8 medium,
+10×10 hard), two icons, balance + no-three-in-a-row + adjacency-marker
+constraints, unique-solution puzzles. Board model done; validation is next.
