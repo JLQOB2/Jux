@@ -43,6 +43,23 @@ export function opposite(icon: Icon): Icon {
   return icon === 'A' ? 'B' : 'A'
 }
 
+/**
+ * A copy of the board with one cell's value replaced. The original board
+ * is untouched; unmodified rows are shared, not copied.
+ */
+export function setCellValue(
+  board: Board,
+  pos: Position,
+  value: CellValue,
+): Board {
+  const cells = board.cells.map((rowCells, row) =>
+    row === pos.row
+      ? rowCells.map((cell, col) => (col === pos.col ? { ...cell, value } : cell))
+      : rowCells,
+  )
+  return { ...board, cells }
+}
+
 export function createEmptyBoard(size: number): Board {
   if (size < 2) {
     throw new Error(`Board size must be at least 2, got ${size}`)
