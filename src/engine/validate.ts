@@ -3,8 +3,8 @@
 // only reported when no future placement could fix it, so partially
 // filled lines are always legal.
 
-import type { Board, CellValue, Icon, Position } from './board'
-import { ICONS } from './board'
+import type { Board, CellValue, Icon, Marker, Position } from './board'
+import { ICONS, opposite } from './board'
 
 export interface Line {
   readonly kind: 'row' | 'col'
@@ -26,6 +26,21 @@ export type Violation =
       /** Every cell in the line holding that icon. */
       readonly cells: ReadonlyArray<Position>
     }
+  | {
+      readonly rule: 'marker'
+      readonly marker: Marker
+      /** The marker's two cells, so every variant offers cells to paint. */
+      readonly cells: ReadonlyArray<Position>
+    }
+
+/** All violations on the board, across every rule. */
+export function findViolations(board: Board): Violation[] {
+  return [
+    ...findRunViolations(board),
+    ...findBalanceViolations(board),
+    ...findMarkerViolations(board),
+  ]
+}
 
 /** One violation per line containing three or more identical consecutive icons. */
 export function findRunViolations(board: Board): Violation[] {
@@ -61,6 +76,24 @@ export function findBalanceViolations(board: Board): Violation[] {
       }
     }
   })
+  return violations
+}
+
+/**
+ * One violation per marker whose constraint is broken. A marker is only
+ * judged once both its cells are filled.
+ */
+export function findMarkerViolations(board: Board): Violation[] {
+  const violations: Violation[] = []
+  for (const marker of board.markers) {
+    const a = board.cells[marker.a.row][marker.a.col].value
+    const b = board.cells[marker.b.row][marker.b.col].value
+    if (a === null || b === null) continue
+    const satisfied = marker.kind === 'equal' ? b === a : b === opposite(a)
+    if (!satisfied) {
+      violations.push({ rule: 'marker', marker, cells: [marker.a, marker.b] })
+    }
+  }
   return violations
 }
 

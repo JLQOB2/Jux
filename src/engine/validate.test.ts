@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'vitest'
-import type { Board, CellValue } from './board'
+import type { Board, CellValue, Marker } from './board'
 import { createEmptyBoard } from './board'
-import { findBalanceViolations, findRunViolations } from './validate'
+import {
+  findBalanceViolations,
+  findMarkerViolations,
+  findRunViolations,
+  findViolations,
+} from './validate'
 
 /** Build a board from row strings: 'A', 'B', or '.' for empty. */
 function boardFrom(...rows: string[]): Board {
@@ -12,6 +17,15 @@ function boardFrom(...rows: string[]): Board {
       [...row].map((ch) => ({ value: toValue(ch), given: false })),
     ),
   }
+}
+
+/** Shorthand for a marker between two [row, col] positions. */
+function markerAt(
+  kind: Marker['kind'],
+  [aRow, aCol]: [number, number],
+  [bRow, bCol]: [number, number],
+): Marker {
+  return { kind, a: { row: aRow, col: aCol }, b: { row: bRow, col: bCol } }
 }
 
 function toValue(ch: string): CellValue {
@@ -253,5 +267,98 @@ describe('findBalanceViolations', () => {
         ],
       },
     ])
+  })
+})
+
+describe('findMarkerViolations', () => {
+  test('a board without markers has no violations', () => {
+    expect(findMarkerViolations(boardFrom('AB..', '....', '....', '....'))).toEqual([])
+  })
+
+  test('satisfied markers are not violations', () => {
+    const board: Board = {
+      ...boardFrom(
+        'AA..',
+        'B...',
+        '....',
+        '....',
+      ),
+      markers: [
+        markerAt('equal', [0, 0], [0, 1]),
+        markerAt('differ', [0, 0], [1, 0]),
+      ],
+    }
+    expect(findMarkerViolations(board)).toEqual([])
+  })
+
+  test('a broken equal marker reports the marker and both cells', () => {
+    const marker = markerAt('equal', [0, 0], [0, 1])
+    const board: Board = { ...boardFrom('AB..', '....', '....', '....'), markers: [marker] }
+    expect(findMarkerViolations(board)).toEqual([
+      {
+        rule: 'marker',
+        marker,
+        cells: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+        ],
+      },
+    ])
+  })
+
+  test('a broken differ marker reports the marker and both cells', () => {
+    const marker = markerAt('differ', [0, 0], [1, 0])
+    const board: Board = { ...boardFrom('B...', 'B...', '....', '....'), markers: [marker] }
+    expect(findMarkerViolations(board)).toEqual([
+      {
+        rule: 'marker',
+        marker,
+        cells: [
+          { row: 0, col: 0 },
+          { row: 1, col: 0 },
+        ],
+      },
+    ])
+  })
+
+  test('a marker with an empty cell is never judged', () => {
+    const board: Board = {
+      ...boardFrom('A...', '....', '....', '....'),
+      markers: [
+        markerAt('equal', [0, 0], [0, 1]),
+        markerAt('differ', [0, 0], [1, 0]),
+        markerAt('equal', [2, 2], [2, 3]),
+      ],
+    }
+    expect(findMarkerViolations(board)).toEqual([])
+  })
+
+  test('only broken markers are reported', () => {
+    const good = markerAt('differ', [0, 0], [0, 1])
+    const bad = markerAt('equal', [0, 0], [1, 0])
+    const board: Board = { ...boardFrom('AB..', 'B...', '....', '....'), markers: [good, bad] }
+    const violations = findMarkerViolations(board)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]).toMatchObject({ rule: 'marker', marker: bad })
+  })
+})
+
+describe('findViolations', () => {
+  test('an empty board is fully clean', () => {
+    expect(findViolations(createEmptyBoard(6))).toEqual([])
+  })
+
+  test('collects violations from every rule', () => {
+    const board: Board = {
+      ...boardFrom(
+        'AAA.',
+        '....',
+        '....',
+        '....',
+      ),
+      markers: [markerAt('differ', [0, 0], [0, 1])],
+    }
+    const rules = findViolations(board).map((violation) => violation.rule)
+    expect(rules).toEqual(['run', 'balance', 'marker'])
   })
 })
