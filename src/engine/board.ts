@@ -6,6 +6,8 @@ export type Icon = 'A' | 'B'
 
 export type CellValue = Icon | null
 
+export const ICONS: ReadonlyArray<Icon> = ['A', 'B']
+
 export interface Cell {
   readonly value: CellValue
   /** Givens are the pre-filled starting cells; the player can never change them. */
