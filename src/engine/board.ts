@@ -60,6 +60,16 @@ export function setCellValue(
   return { ...board, cells }
 }
 
+/** The first empty cell in reading order, or null if the board is full. */
+export function firstEmpty(board: Board): Position | null {
+  for (let row = 0; row < board.size; row++) {
+    for (let col = 0; col < board.size; col++) {
+      if (board.cells[row][col].value === null) return { row, col }
+    }
+  }
+  return null
+}
+
 export function createEmptyBoard(size: number): Board {
   if (size < 2) {
     throw new Error(`Board size must be at least 2, got ${size}`)

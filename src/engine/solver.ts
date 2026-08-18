@@ -3,8 +3,8 @@
 // Pruning is sound because validation only flags unfixable states — a
 // violated branch can never reach a solution.
 
-import type { Board, Position } from './board'
-import { ICONS, setCellValue } from './board'
+import type { Board } from './board'
+import { firstEmpty, ICONS, setCellValue } from './board'
 import { findViolations } from './validate'
 
 /** The first solution found, or null if the board cannot be completed. */
@@ -34,13 +34,4 @@ export function countSolutions(board: Board, limit = 2): number {
     if (count >= limit) return count
   }
   return count
-}
-
-function firstEmpty(board: Board): Position | null {
-  for (let row = 0; row < board.size; row++) {
-    for (let col = 0; col < board.size; col++) {
-      if (board.cells[row][col].value === null) return { row, col }
-    }
-  }
-  return null
 }

@@ -4,5 +4,7 @@
 // the engine must stay a pure, UI-free module so it can be tested in isolation.
 
 export * from './board'
+export * from './generate'
+export * from './random'
 export * from './solver'
 export * from './validate'
