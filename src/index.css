@@ -1,0 +1,173 @@
+/* Theme tokens. Everything visual reads from these variables so a dark
+   mode or alternate icon theme later is a token swap, not a restyle. */
+:root {
+  --paper: #f7f4ee;
+  --ink: #1c1b18;
+  --cell-bg: #ffffff;
+  --cell-given-bg: #edeae2;
+  --grid-line: #c9c4b8;
+  --icon-fill: #ffffff;
+  --error: #c0392b;
+  --error-bg: #f6dedb;
+  --accent: #2c6e63;
+  --cell: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.app h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+/* The board is a gapped grid over a line-colored background: the 1px gaps
+   let the background show through and become the grid lines. */
+.board {
+  position: relative;
+  display: grid;
+  gap: 1px;
+  padding: 1px;
+  background: var(--grid-line);
+  border: 2px solid var(--ink);
+}
+
+.cell {
+  width: var(--cell);
+  height: var(--cell);
+  padding: 8px;
+  border: none;
+  background: var(--cell-bg);
+  cursor: pointer;
+}
+
+.cell:hover {
+  background: color-mix(in srgb, var(--cell-bg) 92%, var(--ink));
+}
+
+.cell-given {
+  background: var(--cell-given-bg);
+  cursor: default;
+}
+
+.cell-given:hover {
+  background: var(--cell-given-bg);
+}
+
+.cell-error,
+.cell-error:hover {
+  background: var(--error-bg);
+}
+
+.cell-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Badges sit on the shared edge between their two cells; pointer-events
+   off so clicks fall through to the cells underneath. */
+.marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cell-bg);
+  border: 1px solid var(--grid-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.marker-broken {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.status {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--ink) 55%, var(--paper));
+}
+
+.status-solved {
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  padding: 6px 14px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--cell-bg);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dev-panel {
+  margin-top: 8px;
+  padding: 12px 16px;
+  border: 1px dashed var(--grid-line);
+  border-radius: 8px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.dev-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dev-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.dev-panel input,
+.dev-panel select {
+  font: inherit;
+}
+
+.dev-panel input[type='text'],
+.dev-panel input:not([type]) {
+  width: 90px;
+}
