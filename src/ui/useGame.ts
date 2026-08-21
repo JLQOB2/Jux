@@ -1,10 +1,14 @@
 // Game state: the current puzzle and the full history of board states.
 // Undo is just "drop the last board" — immutability means every previous
 // state still exists untouched, so there is no undo logic to write.
+//
+// The hook does not create puzzles; the caller hands one in — from the
+// catalog, or freshly generated in the dev panel. Where a puzzle comes
+// from is not this hook's business.
 
 import { useState } from 'react'
 import type { Board, CellValue, Position, Puzzle } from '../engine'
-import { generatePuzzle, setCellValue } from '../engine'
+import { setCellValue } from '../engine'
 
 interface GameState {
   readonly puzzle: Puzzle
@@ -12,8 +16,7 @@ interface GameState {
   readonly boards: ReadonlyArray<Board>
 }
 
-function freshGame(size: number, seed: number): GameState {
-  const puzzle = generatePuzzle(size, seed)
+function freshGame(puzzle: Puzzle): GameState {
   return { puzzle, boards: [puzzle.board] }
 }
 
@@ -26,8 +29,8 @@ function cycled(value: CellValue, reverse: boolean): CellValue {
   return CYCLE[(CYCLE.indexOf(value) + step) % CYCLE.length]
 }
 
-export function useGame(initialSeed: number, size = 6) {
-  const [state, setState] = useState(() => freshGame(size, initialSeed))
+export function useGame(initialPuzzle: Puzzle) {
+  const [state, setState] = useState(() => freshGame(initialPuzzle))
   const board = state.boards[state.boards.length - 1]
 
   function cycleCell(pos: Position, reverse: boolean): void {
@@ -48,8 +51,8 @@ export function useGame(initialSeed: number, size = 6) {
     )
   }
 
-  function newPuzzle(seed: number): void {
-    setState(freshGame(size, seed))
+  function newPuzzle(puzzle: Puzzle): void {
+    setState(freshGame(puzzle))
   }
 
   return {

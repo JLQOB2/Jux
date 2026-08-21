@@ -6,5 +6,6 @@
 export * from './board'
 export * from './generate'
 export * from './random'
+export * from './serialize'
 export * from './solver'
 export * from './validate'
